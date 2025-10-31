@@ -13,6 +13,7 @@ import { useAuthStore } from './stores/auth'
 import { useSettingsStore } from './stores/settings'
 import { useAppStore } from './stores/app'
 import { useI18nLive } from './composables/useI18nLive'
+import { useGoogleFonts } from './composables/useGoogleFonts'
 import ErrorBoundary from './components/ErrorBoundary.vue'
 import DefaultLayout from './layouts/DefaultLayout.vue'
 import AuthLayout from './layouts/AuthLayout.vue'
@@ -22,6 +23,7 @@ const authStore = useAuthStore()
 const settingsStore = useSettingsStore()
 const appStore = useAppStore()
 const i18nLive = useI18nLive()
+const { loadFonts } = useGoogleFonts(settingsStore)
 
 // Determine layout
 const layout = computed(() => {
@@ -74,7 +76,10 @@ onMounted(async () => {
     // Initialize i18n live (starts watchers for all locales)
     i18nLive.loadLive('fr')
     i18nLive.loadLive('en')
-    
+
+    // Load Google Fonts for theme fonts
+    loadFonts()
+
     // Apply SEO once settings are loaded
     applySeo()
     // Re-apply when settings change

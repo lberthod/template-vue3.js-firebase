@@ -319,6 +319,7 @@ export const useSettingsStore = defineStore('settings', () => {
    * Update draft theme colors
    */
   const updateThemeColors = (colors) => {
+    if (!draft.value || typeof draft.value !== 'object') draft.value = {}
     if (!draft.value.theme) draft.value.theme = {}
     draft.value.theme.colors = { ...draft.value.theme.colors, ...colors }
   }
@@ -327,6 +328,7 @@ export const useSettingsStore = defineStore('settings', () => {
    * Update other theme config (fonts, spacing, borderRadius, darkMode)
    */
   const updateThemeConfig = (config) => {
+    if (!draft.value || typeof draft.value !== 'object') draft.value = {}
     if (!draft.value.theme) draft.value.theme = {}
     draft.value.theme = { ...draft.value.theme, ...config }
   }
@@ -335,6 +337,7 @@ export const useSettingsStore = defineStore('settings', () => {
    * Update navbar items
    */
   const updateNavbarItems = (items) => {
+    if (!draft.value || typeof draft.value !== 'object') draft.value = {}
     if (!draft.value.navbar) draft.value.navbar = {}
     draft.value.navbar.items = items
   }
@@ -343,6 +346,7 @@ export const useSettingsStore = defineStore('settings', () => {
    * Update navbar config (position, sticky, logo)
    */
   const updateNavbarConfig = (config) => {
+    if (!draft.value || typeof draft.value !== 'object') draft.value = {}
     if (!draft.value.navbar) draft.value.navbar = {}
     draft.value.navbar = { ...draft.value.navbar, ...config }
   }
@@ -351,6 +355,7 @@ export const useSettingsStore = defineStore('settings', () => {
    * Update footer config
    */
   const updateFooter = (config) => {
+    if (!draft.value || typeof draft.value !== 'object') draft.value = {}
     draft.value.footer = { ...draft.value.footer, ...config }
   }
   
@@ -358,6 +363,7 @@ export const useSettingsStore = defineStore('settings', () => {
    * Update general settings
    */
   const updateGeneral = (config) => {
+    if (!draft.value || typeof draft.value !== 'object') draft.value = {}
     draft.value.general = { ...draft.value.general, ...config }
   }
   
@@ -408,6 +414,12 @@ export const useSettingsStore = defineStore('settings', () => {
         gap: '1.5rem'
       },
       borderRadius: '0.375rem',
+      fontWeights: {
+        body: [400],
+        heading: [400, 700],
+        mono: [400]
+      },
+      fontSubsets: ['latin'],
       darkMode: {
         enabled: false,
         colors: {

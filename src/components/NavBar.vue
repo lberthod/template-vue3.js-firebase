@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar">
+  <nav :class="['navbar', { sticky: isSticky, bottom: isBottom }]">
     <div class="container">
       <div class="navbar-content">
         <!-- Logo / Title -->
@@ -24,9 +24,9 @@
             {{ $t(item.labelKey) }}
           </router-link>
           
-          <!-- Settings link (visible si connecté) -->
+          <!-- Settings link (visible si connecté, seulement si pas déjà présent dans items) -->
           <router-link
-            v-if="authStore.isAuthenticated"
+            v-if="authStore.isAuthenticated && !hasSettingsItem"
             to="/settings"
             class="nav-link"
             active-class="nav-link-active"
@@ -98,6 +98,14 @@ const availableLocales = computed(() => {
   return settingsStore.active?.general?.localesEnabled || ['fr', 'en']
 })
 
+const hasSettingsItem = computed(() => {
+  const items = settingsStore.active?.navbar?.items || []
+  return items.some(i => i.path === '/settings' || i.labelKey === 'nav.settings')
+})
+
+const isSticky = computed(() => !!settingsStore.active?.navbar?.sticky)
+const isBottom = computed(() => settingsStore.active?.navbar?.position === 'bottom')
+
 // Logo helpers (fallback to general.siteLogo)
 const logoSrc = computed(() => settingsStore.active?.navbar?.logoUrl || settingsStore.active?.general?.siteLogo || '')
 const logoAlt = computed(() => settingsStore.active?.navbar?.logoAlt || 'Logo')
@@ -150,6 +158,19 @@ const handleLogout = async () => {
   background-color: var(--bg-elev);
   border-bottom: 1px solid var(--border);
   padding: var(--spacing-md) 0;
+}
+
+.navbar.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.navbar.bottom {
+  position: sticky;
+  bottom: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: none;
 }
 
 .navbar-content {

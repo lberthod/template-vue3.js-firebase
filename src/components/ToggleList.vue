@@ -10,6 +10,10 @@
         v-for="(item, index) in items"
         :key="item.id"
         class="list-item"
+        draggable="true"
+        @dragstart="onDragStart(index)"
+        @dragover.prevent="onDragOver(index)"
+        @drop.prevent="onDrop(index)"
       >
         <div class="item-controls">
           <button @click="moveUp(index)" :disabled="index === 0" class="btn-icon">↑</button>
@@ -132,10 +136,31 @@ const removeItem = (index) => {
   })
   emit('update', newItems)
 }
+
+// Drag and drop
+let dragIndex = -1
+const onDragStart = (index) => {
+  dragIndex = index
+}
+const onDragOver = (index) => {
+  // visual hint could be added via CSS classes
+}
+const onDrop = (index) => {
+  if (dragIndex === -1 || dragIndex === index) return
+  const newItems = [...props.items]
+  const [moved] = newItems.splice(dragIndex, 1)
+  newItems.splice(index, 0, moved)
+  newItems.forEach((item, idx) => { item.order = idx })
+  dragIndex = -1
+  emit('update', newItems)
+}
 </script>
 
 <style scoped>
 .toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   background-color: var(--bg-elev);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
@@ -160,28 +185,29 @@ const removeItem = (index) => {
 
 .list-item {
   display: grid;
-  grid-template-columns: auto auto 1fr 2fr 1.5fr auto;
-  gap: var(--spacing-md);
+  grid-template-columns: auto auto 1fr 1fr 1fr auto;
+  gap: 0.5rem;
   align-items: center;
-  padding: var(--spacing-md);
-  background-color: var(--bg);
+  padding: 0.5rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
 }
 
 .item-controls {
   display: flex;
+  gap: 0.25rem;
+}
+
+.item-field {
+  display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
 }
 
 .btn-icon {
-  width: 32px;
-  height: 32px;
-  padding: 0;
   border: 1px solid var(--border);
-  background-color: var(--bg);
-  border-radius: var(--radius-sm);
+  background: var(--bg);
+  padding: 0.25rem 0.4rem;
   cursor: pointer;
   transition: all var(--transition-fast);
 }

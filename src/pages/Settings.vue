@@ -1,7 +1,10 @@
 <template>
   <div class="container-lg">
     <div class="settings-page">
-      <h1>{{ $t('settings.title') }}</h1>
+      <h1 style="display:flex; align-items:center; gap:.75rem;">
+        {{ $t('settings.title') }}
+        <span v-if="savingDraft" class="badge-saving">Saving…</span>
+      </h1>
       
       <!-- Tabs -->
       <div class="tabs">
@@ -12,6 +15,16 @@
           :class="['tab', { active: activeTab === tab.id }]"
         >
           {{ tab.label }}
+
+.badge-saving {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  background-color: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
         </button>
       </div>
       
@@ -30,14 +43,43 @@
           <div class="card" style="margin-top: 1rem;">
             <details open>
               <summary class="section-summary">Polices</summary>
+            <div class="form-group inline-row" style="align-items:center; gap:.5rem;">
+              <label class="sub">Rechercher</label>
+              <input type="text" v-model="fontQuery" placeholder="Inter, Poppins, Lora..." style="max-width:280px;" />
+            </div>
             <div class="form-group">
               <label>Police du texte (body)</label>
               <input
                 type="text"
                 :value="settingsStore.draft?.theme?.fonts?.body"
                 @input="updateThemeConfig({ fonts: { ...settingsStore.draft.theme.fonts, body: $event.target.value } })"
+                @blur="ensureFallback('body')"
                 placeholder="Inter, system-ui, sans-serif"
               />
+              <div class="inline-row">
+                <label class="sub">Choisir</label>
+                <select @change="updateThemeConfig({ fonts: { ...settingsStore.draft.theme.fonts, body: $event.target.value + ', system-ui, sans-serif' } })">
+                  <option value="">-- Google Fonts (Sans) --</option>
+                  <option v-for="f in filteredSans" :key="'sans-'+f">{{ f }}</option>
+                </select>
+              </div>
+              <div class="font-preview" :style="{ fontFamily: settingsStore.draft?.theme?.fonts?.body }">
+                The quick brown fox jumps over the lazy dog 0123456789
+              </div>
+              <div class="inline-row" style="margin-top:.5rem;">
+                <label class="sub">Graisses</label>
+                <select multiple size="4"
+                  :value="settingsStore.draft?.theme?.fontWeights?.body || []"
+                  @change="onWeightsChange('body', $event)"
+                >
+                  <option :value="300">300</option>
+                  <option :value="400">400</option>
+                  <option :value="500">500</option>
+                  <option :value="600">600</option>
+                  <option :value="700">700</option>
+                  <option :value="800">800</option>
+                </select>
+              </div>
             </div>
             <div class="form-group">
               <label>Police des titres (heading)</label>
@@ -45,8 +87,37 @@
                 type="text"
                 :value="settingsStore.draft?.theme?.fonts?.heading"
                 @input="updateThemeConfig({ fonts: { ...settingsStore.draft.theme.fonts, heading: $event.target.value } })"
+                @blur="ensureFallback('heading')"
                 placeholder="Poppins, sans-serif"
               />
+              <div class="inline-row">
+                <label class="sub">Choisir</label>
+                <select @change="updateThemeConfig({ fonts: { ...settingsStore.draft.theme.fonts, heading: $event.target.value + ', system-ui, sans-serif' } })" title="Sans">
+                  <option value="">-- Sans --</option>
+                  <option v-for="f in filteredSans" :key="'heading-sans-'+f">{{ f }}</option>
+                </select>
+                <select @change="updateThemeConfig({ fonts: { ...settingsStore.draft.theme.fonts, heading: $event.target.value + ', serif' } })" title="Serif">
+                  <option value="">-- Serif --</option>
+                  <option v-for="f in filteredSerif" :key="'heading-serif-'+f">{{ f }}</option>
+                </select>
+              </div>
+              <div class="font-preview heading" :style="{ fontFamily: settingsStore.draft?.theme?.fonts?.heading }">
+                Heading Preview — H1 H2 H3
+              </div>
+              <div class="inline-row" style="margin-top:.5rem;">
+                <label class="sub">Graisses</label>
+                <select multiple size="4"
+                  :value="settingsStore.draft?.theme?.fontWeights?.heading || []"
+                  @change="onWeightsChange('heading', $event)"
+                >
+                  <option :value="300">300</option>
+                  <option :value="400">400</option>
+                  <option :value="500">500</option>
+                  <option :value="600">600</option>
+                  <option :value="700">700</option>
+                  <option :value="800">800</option>
+                </select>
+              </div>
             </div>
             <div class="form-group">
               <label>Police monospace</label>
@@ -54,9 +125,52 @@
                 type="text"
                 :value="settingsStore.draft?.theme?.fonts?.mono"
                 @input="updateThemeConfig({ fonts: { ...settingsStore.draft.theme.fonts, mono: $event.target.value } })"
+                @blur="ensureFallback('mono')"
                 placeholder="Fira Code, monospace"
               />
+              <div class="inline-row">
+                <label class="sub">Choisir</label>
+                <select @change="updateThemeConfig({ fonts: { ...settingsStore.draft.theme.fonts, mono: $event.target.value + ', monospace' } })">
+                  <option value="">-- Monospace --</option>
+                  <option v-for="f in filteredMono" :key="'mono-'+f">{{ f }}</option>
+                </select>
+              </div>
+              <div class="font-preview mono" :style="{ fontFamily: settingsStore.draft?.theme?.fonts?.mono }">
+                const greet = (name) => `Hello, ${name}!`
+              </div>
+              <div class="inline-row" style="margin-top:.5rem;">
+                <label class="sub">Graisses</label>
+                <select multiple size="4"
+                  :value="settingsStore.draft?.theme?.fontWeights?.mono || []"
+                  @change="onWeightsChange('mono', $event)"
+                >
+                  <option :value="300">300</option>
+                  <option :value="400">400</option>
+                  <option :value="500">500</option>
+                  <option :value="600">600</option>
+                  <option :value="700">700</option>
+                  <option :value="800">800</option>
+                </select>
+              </div>
             </div>
+            </details>
+
+            <details>
+              <summary class="section-summary">Subsets</summary>
+              <div class="form-group">
+                <label>Jeux de caractères</label>
+                <select multiple size="6"
+                  :value="settingsStore.draft?.theme?.fontSubsets || []"
+                  @change="onSubsetsChange($event)"
+                >
+                  <option value="latin">latin</option>
+                  <option value="latin-ext">latin-ext</option>
+                  <option value="cyrillic">cyrillic</option>
+                  <option value="cyrillic-ext">cyrillic-ext</option>
+                  <option value="greek">greek</option>
+                  <option value="vietnamese">vietnamese</option>
+                </select>
+              </div>
             </details>
 
             <details open>
@@ -162,7 +276,7 @@
               <div v-if="settingsStore.draft?.navbar?.logoUrl" class="logo-preview">
                 <label>Aperçu du logo</label>
                 <div class="preview-box">
-                  <img :src="settingsStore.draft.navbar.logoUrl" alt="Aperçu logo navbar" />
+                  <img :src="settingsStore.draft.navbar.logoUrl" alt="Aperçu logo navbar" @error="($event.target.style.display='none')" />
                 </div>
               </div>
               <div class="form-group">
@@ -285,7 +399,12 @@
             </div>
             <div class="form-group">
               <label>Twitter Card</label>
-              <input type="text" :value="settingsStore.draft?.general?.seo?.twitterCard" @input="updateGeneral({ seo: { ...settingsStore.draft.general.seo, twitterCard: $event.target.value } })" />
+              <select :value="settingsStore.draft?.general?.seo?.twitterCard" @change="updateGeneral({ seo: { ...settingsStore.draft.general.seo, twitterCard: $event.target.value } })">
+                <option value="summary">summary</option>
+                <option value="summary_large_image">summary_large_image</option>
+                <option value="app">app</option>
+                <option value="player">player</option>
+              </select>
             </div>
 
             <h3>Maintenance</h3>
@@ -373,7 +492,7 @@
             <div v-if="settingsStore.draft?.general?.siteLogo" class="logo-preview">
               <label>Aperçu du logo du site</label>
               <div class="preview-box">
-                <img :src="settingsStore.draft.general.siteLogo" alt="Aperçu logo site" />
+                <img :src="settingsStore.draft.general.siteLogo" alt="Aperçu logo site" @error="($event.target.style.display='none')" />
               </div>
             </div>
             <div class="form-group">
@@ -388,7 +507,7 @@
             <div v-if="settingsStore.draft?.general?.siteFavicon" class="logo-preview">
               <label>Aperçu du favicon</label>
               <div class="preview-box small">
-                <img :src="settingsStore.draft.general.siteFavicon" alt="Aperçu favicon" />
+                <img :src="settingsStore.draft.general.siteFavicon" alt="Aperçu favicon" @error="($event.target.style.display='none')" />
               </div>
             </div>
             
@@ -518,12 +637,43 @@ const route = useRoute()
 const router = useRouter()
 
 const activeTab = ref('theme')
+const savingDraft = ref(false)
+const fontQuery = ref('')
+
+// Font catalogs for quick-pick
+const SANS_FONTS = [
+  'Inter','Roboto','Open Sans','Nunito','Montserrat','Work Sans','Lato','Source Sans Pro','Rubik','Mulish'
+]
+const SERIF_FONTS = [
+  'Playfair Display','Lora','Merriweather','Cormorant Garamond','Libre Baskerville'
+]
+const MONO_FONTS = [
+  'Fira Code','Source Code Pro','JetBrains Mono','Inconsolata','Ubuntu Mono','Roboto Mono'
+]
+
+const filteredSans = computed(() => {
+  const q = fontQuery.value.toLowerCase()
+  return SANS_FONTS.filter(f => f.toLowerCase().includes(q))
+})
+const filteredSerif = computed(() => {
+  const q = fontQuery.value.toLowerCase()
+  return SERIF_FONTS.filter(f => f.toLowerCase().includes(q))
+})
+const filteredMono = computed(() => {
+  const q = fontQuery.value.toLowerCase()
+  return MONO_FONTS.filter(f => f.toLowerCase().includes(q))
+})
 
 // Debounced savers to reduce DB writes (must be defined inside script before use)
 const debouncedSaveDraft = debounce(async () => {
   try {
+    savingDraft.value = true
     await settingsStore.saveDraft()
-  } catch (_) {}
+  } catch (_) {
+    // ignore
+  } finally {
+    savingDraft.value = false
+  }
 }, 400)
 
 const debouncedSaveI18nDraft = debounce(async (locale) => {
@@ -531,6 +681,26 @@ const debouncedSaveI18nDraft = debounce(async (locale) => {
     await settingsStore.saveI18nDraft(locale)
   } catch (_) {}
 }, 400)
+
+// Ensure sensible fallbacks added to font-family strings
+const ensureFallback = (key) => {
+  const fonts = { ...(settingsStore.draft?.theme?.fonts || {}) }
+  const current = String(fonts[key] || '').trim()
+  if (!current) return
+  const lc = current.toLowerCase()
+  // if already has a generic family, keep as-is
+  if (lc.includes('serif') || lc.includes('sans-serif') || lc.includes('monospace')) return
+  let fallback = ', system-ui, sans-serif'
+  if (key === 'mono') fallback = ', monospace'
+  else if (key === 'heading') {
+    const base = current.split(',')[0].trim()
+    if (SERIF_FONTS.map(s => s.toLowerCase()).includes(base.toLowerCase())) fallback = ', serif'
+  }
+  const updated = current + fallback
+  settingsStore.updateThemeConfig({ fonts: { ...fonts, [key]: updated } })
+  debouncedSaveDraft()
+  settingsStore.applyPreview()
+}
 
 const tabs = computed(() => [
   { id: 'theme', label: t('settings.theme') },
@@ -583,6 +753,24 @@ const updateThemeConfig = async (config) => {
   settingsStore.updateThemeConfig(config)
   debouncedSaveDraft()
   settingsStore.applyPreview()
+}
+
+// Helpers to read multiple select values
+const getMultiValues = (event) => Array.from(event.target.selectedOptions).map(o => {
+  const val = o.value
+  const num = Number(val)
+  return Number.isNaN(num) ? val : num
+})
+
+const onWeightsChange = (key, event) => {
+  const arr = getMultiValues(event)
+  const curr = settingsStore.draft?.theme?.fontWeights || {}
+  updateThemeConfig({ fontWeights: { ...curr, [key]: arr } })
+}
+
+const onSubsetsChange = (event) => {
+  const arr = getMultiValues(event).filter(v => typeof v === 'string')
+  updateThemeConfig({ fontSubsets: arr })
 }
 
 // Navigation methods (auto-save + live preview)
