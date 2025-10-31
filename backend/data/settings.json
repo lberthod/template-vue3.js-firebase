@@ -1,0 +1,130 @@
+{
+  "theme": {
+    "colors": {
+      "bg": "#ffffff",
+      "bgElev": "#f8f9fa",
+      "fg": "#212529",
+      "border": "#dee2e6",
+      "muted": "#6c757d",
+      "primary": "#0d6efd",
+      "success": "#198754",
+      "danger": "#dc3545",
+      "warning": "#ffc107",
+      "info": "#0dcaf0"
+    },
+    "fonts": {
+      "body": "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+      "heading": "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+      "mono": "'Courier New', monospace"
+    },
+    "spacing": {
+      "container": "1200px",
+      "padding": "1rem",
+      "gap": "1.5rem"
+    },
+    "borderRadius": "0.375rem",
+    "darkMode": {
+      "enabled": false,
+      "colors": {
+        "bg": "#1a1a1a",
+        "bgElev": "#2d2d2d",
+        "fg": "#f0f0f0",
+        "border": "#404040",
+        "muted": "#999999"
+      }
+    }
+  },
+  "navbar": {
+    "position": "top",
+    "sticky": true,
+    "logoUrl": "",
+    "logoAlt": "Logo",
+    "showLogo": true,
+    "items": [
+      {
+        "id": "home",
+        "visible": true,
+        "order": 0,
+        "labelKey": "nav.home",
+        "path": "/"
+      },
+      {
+        "id": "about",
+        "visible": true,
+        "order": 1,
+        "labelKey": "nav.about",
+        "path": "/about"
+      },
+      {
+        "id": "contact",
+        "visible": true,
+        "order": 2,
+        "labelKey": "nav.contact",
+        "path": "/contact"
+      },
+      {
+        "id": "product",
+        "visible": true,
+        "order": 3,
+        "labelKey": "nav.product",
+        "path": "/product"
+      },
+      {
+        "id": "price",
+        "visible": true,
+        "order": 4,
+        "labelKey": "nav.price",
+        "path": "/price"
+      },
+      {
+        "id": "settings",
+        "visible": true,
+        "order": 5,
+        "labelKey": "nav.settings",
+        "path": "/settings"
+      }
+    ]
+  },
+  "footer": {
+    "visible": true,
+    "textKey": "footer.copyright"
+  },
+  "general": {
+    "siteTitle": "Vue Firebase CMS",
+    "siteDescription": "Template Vue 3 avec Firebase et CMS intégré",
+    "siteLogo": "",
+    "siteFavicon": "/favicon.ico",
+    "localeDefault": "fr",
+    "localesEnabled": ["fr", "en"],
+    "features": {
+      "darkMode": false,
+      "analytics": false,
+      "cookieConsent": true,
+      "newsletter": false,
+      "search": false,
+      "comments": false
+    },
+    "contact": {
+      "email": "contact@example.com",
+      "phone": "+33 1 23 45 67 89",
+      "address": "Paris, France"
+    },
+    "social": {
+      "facebook": "",
+      "twitter": "",
+      "linkedin": "",
+      "instagram": "",
+      "github": ""
+    },
+    "seo": {
+      "metaDescription": "Template Vue 3 avec Firebase Realtime Database et CMS intégré",
+      "metaKeywords": "vue3, firebase, cms, template",
+      "ogImage": "",
+      "twitterCard": "summary_large_image"
+    },
+    "maintenance": {
+      "enabled": false,
+      "message": "Site en maintenance. Nous revenons bientôt !"
+    }
+  }
+}

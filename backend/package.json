@@ -1,0 +1,22 @@
+{
+  "name": "vue-firebase-cms-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Backend scripts for maintenance and backups",
+  "scripts": {
+    "start": "node index.js",
+    "hello": "node scripts/hello.js",
+    "maintenance": "node scripts/db-maintenance.js",
+    "backup:i18n": "node scripts/backup-i18n.js",
+    "backup:settings": "node scripts/backup-settings.js",
+    "seed": "node scripts/seed-db.js",
+    "seed:force": "node scripts/seed-db.js --force",
+    "i18n:sync:en": "node scripts/i18n-sync-from-fr.js --target=en --scope=both",
+    "seed:files": "node scripts/seed-from-files.js --dir=./data --scope=both",
+    "export:files": "node scripts/export-to-files.js --dir=./data-export --scope=live"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "dotenv": "^16.4.5"
+  }
+}
